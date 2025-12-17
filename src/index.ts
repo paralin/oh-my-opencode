@@ -21,6 +21,7 @@ import {
   createNonInteractiveEnvHook,
   createInteractiveBashSessionHook,
   createEmptyMessageSanitizerHook,
+  createExpensiveOperationConfirmationHook,
 } from "./hooks";
 import { createGoogleAntigravityAuthPlugin } from "./auth/antigravity";
 import {
@@ -89,11 +90,78 @@ function normalizeAgentNames(agents: Record<string, unknown>): Record<string, un
   return normalized;
 }
 
+function stripJsoncComments(content: string): string {
+  let result = "";
+  let i = 0;
+  let inString = false;
+  let stringChar = "";
+
+  while (i < content.length) {
+    const char = content[i];
+    const nextChar = content[i + 1];
+
+    if (inString) {
+      result += char;
+      if (char === "\\" && i + 1 < content.length) {
+        result += nextChar;
+        i += 2;
+        continue;
+      }
+      if (char === stringChar) {
+        inString = false;
+      }
+      i++;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      inString = true;
+      stringChar = char;
+      result += char;
+      i++;
+      continue;
+    }
+
+    if (char === "/" && nextChar === "/") {
+      while (i < content.length && content[i] !== "\n") {
+        i++;
+      }
+      continue;
+    }
+
+    if (char === "/" && nextChar === "*") {
+      i += 2;
+      while (i < content.length) {
+        if (content[i] === "*" && content[i + 1] === "/") {
+          i += 2;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
+
+    result += char;
+    i++;
+  }
+
+  return result.replace(/,(\s*[}\]])/g, "$1");
+}
+
+function findConfigFile(basePath: string): string | null {
+  const jsoncPath = basePath.replace(/\.json$/, ".jsonc");
+  if (fs.existsSync(jsoncPath)) return jsoncPath;
+  if (fs.existsSync(basePath)) return basePath;
+  return null;
+}
+
 function loadConfigFromPath(configPath: string): OhMyOpenCodeConfig | null {
   try {
-    if (fs.existsSync(configPath)) {
-      const content = fs.readFileSync(configPath, "utf-8");
-      const rawConfig = JSON.parse(content);
+    const actualPath = findConfigFile(configPath);
+    if (actualPath) {
+      const content = fs.readFileSync(actualPath, "utf-8");
+      const jsonContent = stripJsoncComments(content);
+      const rawConfig = JSON.parse(jsonContent);
 
       if (rawConfig.agents && typeof rawConfig.agents === "object") {
         rawConfig.agents = normalizeAgentNames(rawConfig.agents);
@@ -231,11 +299,6 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
   const rulesInjector = isHookEnabled("rules-injector")
     ? createRulesInjectorHook(ctx)
     : null;
-  const autoUpdateChecker = isHookEnabled("auto-update-checker")
-    ? createAutoUpdateCheckerHook(ctx, {
-        showStartupToast: isHookEnabled("startup-toast"),
-      })
-    : null;
   const keywordDetector = isHookEnabled("keyword-detector")
     ? createKeywordDetectorHook()
     : null;
@@ -250,6 +313,15 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
     : null;
   const emptyMessageSanitizer = isHookEnabled("empty-message-sanitizer")
     ? createEmptyMessageSanitizerHook()
+    : null;
+
+  const agentModelMap = new Map<string, string>();
+  
+  const expensiveOpConfirmation = isHookEnabled("expensive-operation-confirmation")
+    ? createExpensiveOperationConfirmationHook(ctx, {
+        billingConfig: pluginConfig.billing,
+        getAgentModel: (agentName: string) => agentModelMap.get(agentName.toLowerCase()),
+      })
     : null;
 
   updateTerminalTitle({ sessionId: "main" });
@@ -299,6 +371,7 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
         pluginConfig.disabled_agents,
         pluginConfig.agents,
         ctx.directory,
+        pluginConfig.billing,
       );
 
       const userAgents = (pluginConfig.claude_code?.agents ?? true) ? loadUserAgents() : {};
@@ -341,6 +414,12 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
           ...projectAgents,
           ...config.agent,
         };
+      }
+
+      for (const [name, agentConfig] of Object.entries(config.agent ?? {})) {
+        if (agentConfig?.model) {
+          agentModelMap.set(name.toLowerCase(), agentConfig.model);
+        }
       }
 
       config.tools = {
@@ -397,7 +476,6 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
     },
 
     event: async (input) => {
-      await autoUpdateChecker?.event(input);
       await claudeCodeHooks.event(input);
       await backgroundNotificationHook?.event(input);
       await sessionNotification?.(input);
@@ -411,6 +489,7 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
       await keywordDetector?.event(input);
       await agentUsageReminder?.event(input);
       await interactiveBashSession?.event(input);
+      await expensiveOpConfirmation?.event(input);
 
       const { event } = input;
       const props = event.properties as Record<string, unknown> | undefined;
@@ -510,6 +589,7 @@ const OhMyOpenCodePlugin: Plugin = async (ctx) => {
       await claudeCodeHooks["tool.execute.before"](input, output);
       await nonInteractiveEnv?.["tool.execute.before"](input, output);
       await commentChecker?.["tool.execute.before"](input, output);
+      await expensiveOpConfirmation?.["tool.execute.before"](input, output);
 
       if (input.tool === "task") {
         const args = output.args as Record<string, unknown>;

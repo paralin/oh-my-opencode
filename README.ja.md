@@ -58,6 +58,7 @@
       - [Permission オプション](#permission-オプション)
     - [OmO Agent](#omo-agent)
     - [Hooks](#hooks)
+    - [Cost Management](#cost-management)
     - [MCPs](#mcps)
     - [LSP](#lsp)
   - [作者のノート](#作者のノート)
@@ -325,13 +326,13 @@ gh repo star code-yeongyu/oh-my-opencode
 
 ### Agents: あなたの新しいチームメイト
 
-- **OmO** (`anthropic/claude-opus-4-5`): **デフォルトエージェントです。** OpenCode のための強力な AI オーケストレーターです。専門のサブエージェントを活用して、複雑なタスクを計画、委任、実行します。バックグラウンドタスクへの委任と Todo ベースのワークフローを重視します。最大の推論能力を発揮するため、Claude Opus 4.5 と拡張思考 (32k token budget) を使用します。
-- **oracle** (`openai/gpt-5.2`): アーキテクチャ、コードレビュー、戦略立案のための専門アドバイザー。GPT-5.2 の卓越した論理的推論と深い分析能力を活用します。AmpCode からインスピレーションを得ました。
-- **librarian** (`anthropic/claude-sonnet-4-5`): マルチリポジトリ分析、ドキュメント検索、実装例の調査を担当。Claude Sonnet 4.5 を使用して、深いコードベース理解と GitHub リサーチ、根拠に基づいた回答を提供します。AmpCode からインスピレーションを得ました。
-- **explore** (`opencode/grok-code`): 高速なコードベース探索、ファイルパターンマッチング。Claude Code は Haiku を使用しますが、私たちは Grok を使います。現在無料であり、極めて高速で、ファイル探索タスクには十分な知能を備えているからです。Claude Code からインスピレーションを得ました。
-- **frontend-ui-ux-engineer** (`google/gemini-3-pro-preview`): 開発者に転身したデザイナーという設定です。素晴らしい UI を作ります。美しく独創的な UI コードを生成することに長けた Gemini を使用します。
-- **document-writer** (`google/gemini-3-pro-preview`): テクニカルライティングの専門家という設定です。Gemini は文筆家であり、流れるような文章を書きます。
-- **multimodal-looker** (`google/gemini-2.5-flash`): 視覚コンテンツ解釈のための専門エージェント。PDF、画像、図表を分析して情報を抽出します。
+- **OmO** (`github-copilot/claude-opus-4-5`): **デフォルトエージェントです。** OpenCode のための強力な AI オーケストレーターです。専門のサブエージェントを活用して、複雑なタスクを計画、委任、実行します。バックグラウンドタスクへの委任と Todo ベースのワークフローを重視します。最大の推論能力を発揮するため、Claude Opus 4.5 と拡張思考 (32k token budget) を使用します。
+- **oracle** (`github-copilot/gpt-5.2`): アーキテクチャ、コードレビュー、戦略立案のための専門アドバイザー。GPT-5.2 の卓越した論理的推論と深い分析能力を活用します。AmpCode からインスピレーションを得ました。
+- **librarian** (`github-copilot/claude-sonnet-4-5`): マルチリポジトリ分析、ドキュメント検索、実装例の調査を担当。Claude Sonnet 4.5 を使用して、深いコードベース理解と GitHub リサーチ、根拠に基づいた回答を提供します。AmpCode からインスピレーションを得ました。
+- **explore** (`github-copilot/grok-code-fast-1`): 高速なコードベース探索、ファイルパターンマッチング。Claude Code は Haiku を使用しますが、私たちは Grok を使います。現在無料であり、極めて高速で、ファイル探索タスクには十分な知能を備えているからです。Claude Code からインスピレーションを得ました。
+- **frontend-ui-ux-engineer** (`github-copilot/gemini-3-pro-preview`): 開発者に転身したデザイナーという設定です。素晴らしい UI を作ります。美しく独創的な UI コードを生成することに長けた Gemini を使用します。
+- **document-writer** (`github-copilot/gemini-3-pro-preview`): テクニカルライティングの専門家という設定です。Gemini は文筆家であり、流れるような文章を書きます。
+- **multimodal-looker** (`github-copilot/gemini-2.5-pro`): 視覚コンテンツ解釈のための専門エージェント。PDF、画像、図表を分析して情報を抽出します。
 
 メインエージェントはこれらを自動的に呼び出しますが、明示的に呼び出すことも可能です：
 
@@ -532,12 +533,11 @@ Oh My OpenCode は以下の場所からフックを読み込んで実行しま�
 - **Agent Usage Reminder**: 検索ツールを直接呼び出す際、バックグラウンドタスクを通じた専門エージェントの活用を推奨するリマインダーを表示します。
 - **Anthropic Auto Compact**: Claude モデルがトークン制限に達すると、自動的にセッションを要約・圧縮します。手動での介入は不要です。
 - **Session Recovery**: セッションエラー（ツールの結果欠落、thinking ブロックの問題、空のメッセージなど）から自動復旧します。セッションが途中でクラッシュすることはありません。もしクラッシュしても復旧します。
-- **Auto Update Checker**: oh-my-opencode の新バージョンがリリースされると通知します。
-- **Startup Toast**: OhMyOpenCode ロード時にウェルカムメッセージを表示します。セッションを正しく始めるための、ささやかな "oMoMoMo" です。
 - **Background Notification**: バックグラウンドエージェントのタスクが完了すると通知を受け取ります。
-- **Session Notification**: エージェントがアイドル状態になると OS 通知を送ります。macOS、Linux、Windows で動作します—エージェントが入力を待っている時を見逃しません。
+- **Session Notification**: エージェントがアイドル状態になると OS 通知を送ります。macOS、Linux、Windows で動作します—エージェントが入力を待っている時を見逃しません.
 - **Empty Task Response Detector**: Task ツールが空の応答を返すと検知します。既に空の応答が返ってきているのに、いつまでも待ち続ける状況を防ぎます。
 - **Empty Message Sanitizer**: 空のチャットメッセージによるAPIエラーを防止します。送信前にメッセージ内容を自動的にサニタイズします。
+- **Expensive Operation Confirmation**: トークン従量課金モードで、高コストなエージェントを呼び出す前に確認を求めます。トークン単位の課金を使用する際のコスト管理に役立ちます。
 - **Grep Output Truncator**: grep は山のようなテキストを返すことがあります。残りのコンテキストウィンドウに応じて動的に出力を切り詰めます—50% の余裕を維持し、最大 50k トークンに制限します。
 - **Tool Output Truncator**: 同じ考え方をより広範囲に適用します。Grep、Glob、LSP ツール、AST-grep の出力を切り詰めます。一度の冗長な検索がコンテキスト全体を食いつぶすのを防ぎます。
 
@@ -546,8 +546,10 @@ Oh My OpenCode は以下の場所からフックを読み込んで実行しま�
 こだわりが強く反映された設定ですが、好みに合わせて調整可能です。
 
 設定ファイルの場所（優先順）：
-1. `.opencode/oh-my-opencode.json` (プロジェクト)
-2. `~/.config/opencode/oh-my-opencode.json` (ユーザー)
+1. `.opencode/oh-my-opencode.jsonc` または `.opencode/oh-my-opencode.json` (プロジェクト)
+2. `~/.config/opencode/oh-my-opencode.jsonc` または `~/.config/opencode/oh-my-opencode.json` (ユーザー)
+
+**JSONC サポート**: 設定ファイルはコメント付き JSON のために `.jsonc` 拡張子を使用できます。両方のファイルが存在する場合、`.jsonc` ファイルが優先されます。
 
 スキーマ自動補完がサポートされています：
 
@@ -676,7 +678,34 @@ OmO を無効化して元の build/plan エージェントを復元するには�
 }
 ```
 
-利用可能なフック：`todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `auto-update-checker`, `startup-toast`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`
+利用可能なフック：`todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`, `expensive-operation-confirmation`
+
+### Cost Management
+
+GitHub Copilot のプレミアムリクエスト課金に対するコスト管理の設定です：
+
+```json
+{
+  "billing": {
+    "mode": "session",
+    "confirm_expensive_threshold": 2
+  }
+}
+```
+
+| オプション | デフォルト | 説明 |
+|------------|------------|------|
+| `mode` | `"session"` | 課金モード：`"session"`（チャットごとの定額）または `"premium_request"`（リクエスト従量課金）。 |
+| `model_costs` | (内蔵) | モデルコスト倍率のオーバーライド。各モデルは `{ unit, cost_multiplier }` にマッピングされます。 |
+| `confirm_expensive_threshold` | `2` | `"premium_request"` モードで、この倍率以上のエージェントを呼び出す前に確認を求めます。 |
+
+**コストティア**（プレミアムリクエスト倍率）：
+- **FREE**（0x）：`grok-code-fast-1`, `gpt-5-mini`, `o4-mini`
+- **LOW**（0.33x）：`claude-haiku-4.5`, `gpt-5.1-codex-mini`
+- **STANDARD**（1x）：ほとんどのモデル（sonnet, gpt-5.x, gemini など）
+- **HIGH**（3x）：`claude-opus-4.5`
+
+`"session"` モード（デフォルト）では、セッション内のすべてのエージェント呼び出しに追加コストはないため確認は不要です。`"premium_request"` モードでは、`expensive-operation-confirmation` フックが高コストなエージェント呼び出し前に確認を求め、プレミアムリクエストの割り当て管理を支援します。
 
 ### MCPs
 

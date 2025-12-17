@@ -55,6 +55,7 @@
       - [Permission 옵션](#permission-옵션)
     - [OmO Agent](#omo-agent)
     - [Hooks](#hooks)
+    - [Cost Management](#cost-management)
     - [MCPs](#mcps)
     - [LSP](#lsp)
   - [작성자의 노트](#작성자의-노트)
@@ -322,13 +323,13 @@ gh repo star code-yeongyu/oh-my-opencode
 
 ### Agents: 당신의 새로운 팀원들
 
-- **OmO** (`anthropic/claude-opus-4-5`): **기본 에이전트입니다.** OpenCode를 위한 강력한 AI 오케스트레이터입니다. 전문 서브에이전트를 활용하여 복잡한 작업을 계획, 위임, 실행합니다. 백그라운드 태스크 위임과 todo 기반 워크플로우를 강조합니다. 최대 추론 능력을 위해 Claude Opus 4.5와 확장된 사고(32k 버짓)를 사용합니다.
-- **oracle** (`openai/gpt-5.2`): 아키텍처, 코드 리뷰, 전략 수립을 위한 전문가 조언자. GPT-5.2의 뛰어난 논리적 추론과 깊은 분석 능력을 활용합니다. AmpCode 에서 영감을 받았습니다.
-- **librarian** (`anthropic/claude-sonnet-4-5`): 멀티 레포 분석, 문서 조회, 구현 예제 담당. Claude Sonnet 4.5를 사용하여 깊은 코드베이스 이해와 GitHub 조사, 근거 기반의 답변을 제공합니다. AmpCode 에서 영감을 받았습니다.
-- **explore** (`opencode/grok-code`): 빠른 코드베이스 탐색, 파일 패턴 매칭. Claude Code는 Haiku를 쓰지만, 우리는 Grok을 씁니다. 현재 무료이고, 극도로 빠르며, 파일 탐색 작업에 충분한 지능을 갖췄기 때문입니다. Claude Code 에서 영감을 받았습니다.
-- **frontend-ui-ux-engineer** (`google/gemini-3-pro-preview`): 개발자로 전향한 디자이너라는 설정을 갖고 있습니다. 멋진 UI를 만듭니다. 아름답고 창의적인 UI 코드를 생성하는 데 탁월한 Gemini를 사용합니다.
-- **document-writer** (`google/gemini-3-pro-preview`): 기술 문서 전문가라는 설정을 갖고 있습니다. Gemini 는 문학가입니다. 글을 기가막히게 씁니다.
-- **multimodal-looker** (`google/gemini-2.5-flash`): 시각적 콘텐츠 해석을 위한 전문 에이전트. PDF, 이미지, 다이어그램을 분석하여 정보를 추출합니다.
+- **OmO** (`github-copilot/claude-opus-4-5`): **기본 에이전트입니다.** OpenCode를 위한 강력한 AI 오케스트레이터입니다. 전문 서브에이전트를 활용하여 복잡한 작업을 계획, 위임, 실행합니다. 백그라운드 태스크 위임과 todo 기반 워크플로우를 강조합니다. 최대 추론 능력을 위해 Claude Opus 4.5와 확장된 사고(32k 버짓)를 사용합니다.
+- **oracle** (`github-copilot/gpt-5.2`): 아키텍처, 코드 리뷰, 전략 수립을 위한 전문가 조언자. GPT-5.2의 뛰어난 논리적 추론과 깊은 분석 능력을 활용합니다. AmpCode 에서 영감을 받았습니다.
+- **librarian** (`github-copilot/claude-sonnet-4-5`): 멀티 레포 분석, 문서 조회, 구현 예제 담당. Claude Sonnet 4.5를 사용하여 깊은 코드베이스 이해와 GitHub 조사, 근거 기반의 답변을 제공합니다. AmpCode 에서 영감을 받았습니다.
+- **explore** (`github-copilot/grok-code-fast-1`): 빠른 코드베이스 탐색, 파일 패턴 매칭. Claude Code는 Haiku를 쓰지만, 우리는 Grok을 씁니다. 현재 무료이고, 극도로 빠르며, 파일 탐색 작업에 충분한 지능을 갖췄기 때문입니다. Claude Code 에서 영감을 받았습니다.
+- **frontend-ui-ux-engineer** (`github-copilot/gemini-3-pro-preview`): 개발자로 전향한 디자이너라는 설정을 갖고 있습니다. 멋진 UI를 만듭니다. 아름답고 창의적인 UI 코드를 생성하는 데 탁월한 Gemini를 사용합니다.
+- **document-writer** (`github-copilot/gemini-3-pro-preview`): 기술 문서 전문가라는 설정을 갖고 있습니다. Gemini 는 문학가입니다. 글을 기가막히게 씁니다.
+- **multimodal-looker** (`github-copilot/gemini-2.5-pro`): 시각적 콘텐츠 해석을 위한 전문 에이전트. PDF, 이미지, 다이어그램을 분석하여 정보를 추출합니다.
 
 각 에이전트는 메인 에이전트가 알아서 호출하지만, 명시적으로 요청할 수도 있습니다:
 
@@ -526,12 +527,11 @@ Oh My OpenCode는 다음 위치의 훅을 읽고 실행합니다:
 - **Agent Usage Reminder**: 검색 도구를 직접 호출할 때, 백그라운드 작업을 통한 전문 에이전트 활용을 권장하는 리마인더를 표시합니다.
 - **Anthropic Auto Compact**: Claude 모델이 토큰 제한에 도달하면 자동으로 세션을 요약하고 압축합니다. 수동 개입 없이 작업을 계속할 수 있습니다.
 - **Session Recovery**: 세션 에러(누락된 도구 결과, thinking 블록 문제, 빈 메시지 등)에서 자동 복구합니다. 돌다가 세션이 망가지지 않습니다. 망가져도 복구됩니다.
-- **Auto Update Checker**: oh-my-opencode의 새 버전이 출시되면 알림을 표시합니다.
-- **Startup Toast**: OhMyOpenCode 로드 시 환영 메시지를 표시합니다. 세션을 제대로 시작하기 위한 작은 "oMoMoMo".
 - **Background Notification**: 백그라운드 에이전트 작업이 완료되면 알림을 받습니다.
 - **Session Notification**: 에이전트가 대기 상태가 되면 OS 알림을 보냅니다. macOS, Linux, Windows에서 작동—에이전트가 입력을 기다릴 때 놓치지 마세요.
 - **Empty Task Response Detector**: Task 도구가 빈 응답을 반환하면 감지합니다. 이미 빈 응답이 왔는데 무한정 기다리는 상황을 방지합니다.
 - **Empty Message Sanitizer**: 빈 채팅 메시지로 인한 API 오류를 방지합니다. 전송 전 메시지 내용을 자동으로 정리합니다.
+- **Expensive Operation Confirmation**: 토큰 기반 빌링 모드에서 고가의 에이전트를 호출하기 전에 확인을 요청합니다. 토큰당 과금 사용 시 비용을 관리하는 데 도움이 됩니다.
 - **Grep Output Truncator**: grep은 산더미 같은 텍스트를 반환할 수 있습니다. 남은 컨텍스트 윈도우에 따라 동적으로 출력을 축소합니다—50% 여유 공간 유지, 최대 50k 토큰.
 - **Tool Output Truncator**: 같은 아이디어, 더 넓은 범위. Grep, Glob, LSP 도구, AST-grep의 출력을 축소합니다. 한 번의 장황한 검색이 전체 컨텍스트를 잡아먹는 것을 방지합니다.
 
@@ -540,8 +540,10 @@ Oh My OpenCode는 다음 위치의 훅을 읽고 실행합니다:
 비록 Highly Opinionated 한 설정이지만, 여러분의 입맛대로 조정 할 수 있습니다.
 
 설정 파일 위치 (우선순위 순):
-1. `.opencode/oh-my-opencode.json` (프로젝트)
-2. `~/.config/opencode/oh-my-opencode.json` (사용자)
+1. `.opencode/oh-my-opencode.jsonc` 또는 `.opencode/oh-my-opencode.json` (프로젝트)
+2. `~/.config/opencode/oh-my-opencode.jsonc` 또는 `~/.config/opencode/oh-my-opencode.json` (사용자)
+
+**JSONC 지원**: 설정 파일은 주석이 포함된 JSON을 위해 `.jsonc` 확장자를 사용할 수 있습니다. 두 파일이 모두 존재하는 경우 `.jsonc` 파일이 우선됩니다.
 
 Schema 자동 완성이 지원됩니다:
 
@@ -670,7 +672,34 @@ OmO를 비활성화하고 원래 build/plan 에이전트를 복원하려면:
 }
 ```
 
-사용 가능한 훅: `todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `auto-update-checker`, `startup-toast`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`
+사용 가능한 훅: `todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`, `expensive-operation-confirmation`
+
+### Cost Management
+
+GitHub Copilot 프리미엄 요청 과금에 대한 비용 인식 에이전트 관리를 설정합니다:
+
+```json
+{
+  "billing": {
+    "mode": "session",
+    "confirm_expensive_threshold": 2
+  }
+}
+```
+
+| 옵션 | 기본값 | 설명 |
+| ---- | ------ | ---- |
+| `mode` | `"session"` | 과금 모드: `"session"` (채팅당 정액제) 또는 `"premium_request"` (요청당 과금). |
+| `model_costs` | (내장값) | 모델 비용 배수를 오버라이드합니다. 각 모델은 `{ unit, cost_multiplier }`로 매핑됩니다. |
+| `confirm_expensive_threshold` | `2` | `"premium_request"` 모드에서, 이 배수 이상의 에이전트를 호출하기 전에 확인을 요청합니다. |
+
+**비용 등급** (프리미엄 요청 배수):
+- **무료** (0x): `grok-code-fast-1`, `gpt-5-mini`, `o4-mini`
+- **저렴** (0.33x): `claude-haiku-4.5`, `gpt-5.1-codex-mini`
+- **표준** (1x): 대부분의 모델 (sonnet, gpt-5.x, gemini 등)
+- **고가** (3x): `claude-opus-4.5`
+
+`"session"` 모드(기본값)에서는 세션 내 모든 에이전트 호출에 추가 비용이 없으므로 확인이 필요 없습니다. `"premium_request"` 모드에서는 `expensive-operation-confirmation` 훅이 고가의 에이전트 호출 전에 확인을 요청하여 프리미엄 요청 할당량 관리를 돕습니다.
 
 ### MCPs
 

@@ -78,6 +78,7 @@ No stupid token consumption massive subagents here. No bloat tools here.
       - [Permission Options](#permission-options)
     - [OmO Agent](#omo-agent)
     - [Hooks](#hooks)
+    - [Cost Management](#cost-management)
     - [MCPs](#mcps)
     - [LSP](#lsp)
   - [Author's Note](#authors-note)
@@ -343,13 +344,13 @@ That's it. The agent will figure out the rest and handle everything automaticall
 
 ### Agents: Your Teammates
 
-- **OmO** (`anthropic/claude-opus-4-5`): **The default agent.** A powerful AI orchestrator for OpenCode. Plans, delegates, and executes complex tasks using specialized subagents with aggressive parallel execution. Emphasizes background task delegation and todo-driven workflow. Uses Claude Opus 4.5 with extended thinking (32k budget) for maximum reasoning capability.
-- **oracle** (`openai/gpt-5.2`): Architecture, code review, strategy. Uses GPT-5.2 for its stellar logical reasoning and deep analysis. Inspired by AmpCode.
-- **librarian** (`anthropic/claude-sonnet-4-5`): Multi-repo analysis, doc lookup, implementation examples. Uses Claude Sonnet 4.5 for deep codebase understanding and GitHub research with evidence-based answers. Inspired by AmpCode.
-- **explore** (`opencode/grok-code`): Fast codebase exploration and pattern matching. Claude Code uses Haiku; we use Grok—it's free, blazing fast, and plenty smart for file traversal. Inspired by Claude Code.
-- **frontend-ui-ux-engineer** (`google/gemini-3-pro-preview`): A designer turned developer. Builds gorgeous UIs. Gemini excels at creative, beautiful UI code.
-- **document-writer** (`google/gemini-3-pro-preview`): Technical writing expert. Gemini is a wordsmith—writes prose that flows.
-- **multimodal-looker** (`google/gemini-2.5-flash`): Visual content specialist. Analyzes PDFs, images, diagrams to extract information.
+- **OmO** (`github-copilot/claude-opus-4-5`): **The default agent.** A powerful AI orchestrator for OpenCode. Plans, delegates, and executes complex tasks using specialized subagents with aggressive parallel execution. Emphasizes background task delegation and todo-driven workflow. Uses Claude Opus 4.5 with extended thinking (32k budget) for maximum reasoning capability.
+- **oracle** (`github-copilot/gpt-5.2`): Architecture, code review, strategy. Uses GPT-5.2 for its stellar logical reasoning and deep analysis. Inspired by AmpCode.
+- **librarian** (`github-copilot/claude-sonnet-4-5`): Multi-repo analysis, doc lookup, implementation examples. Uses Claude Sonnet 4.5 for deep codebase understanding and GitHub research with evidence-based answers. Inspired by AmpCode.
+- **explore** (`github-copilot/grok-code-fast-1`): Fast codebase exploration and pattern matching. Claude Code uses Haiku; we use Grok—it's free, blazing fast, and plenty smart for file traversal. Inspired by Claude Code.
+- **frontend-ui-ux-engineer** (`github-copilot/gemini-3-pro-preview`): A designer turned developer. Builds gorgeous UIs. Gemini excels at creative, beautiful UI code.
+- **document-writer** (`github-copilot/gemini-3-pro-preview`): Technical writing expert. Gemini is a wordsmith—writes prose that flows.
+- **multimodal-looker** (`github-copilot/gemini-2.5-pro`): Visual content specialist. Analyzes PDFs, images, diagrams to extract information.
 
 The main agent invokes these automatically, but you can call them explicitly:
 
@@ -547,12 +548,11 @@ When agents thrive, you thrive. But I want to help you directly too.
 - **Agent Usage Reminder**: When you call search tools directly, reminds you to leverage specialized agents via background tasks for better results.
 - **Anthropic Auto Compact**: When Claude models hit token limits, automatically summarizes and compacts the session—no manual intervention needed.
 - **Session Recovery**: Automatically recovers from session errors (missing tool results, thinking block issues, empty messages). Sessions don't crash mid-run. Even if they do, they recover.
-- **Auto Update Checker**: Notifies you when a new version of oh-my-opencode is available.
-- **Startup Toast**: Shows a welcome message when OhMyOpenCode loads. A little "oMoMoMo" to start your session right.
 - **Background Notification**: Get notified when background agent tasks complete.
 - **Session Notification**: Sends OS notifications when agents go idle. Works on macOS, Linux, and Windows—never miss when your agent needs input.
 - **Empty Task Response Detector**: Catches when Task tool returns nothing. Warns you about potential agent failures so you don't wait forever for a response that already came back empty.
 - **Empty Message Sanitizer**: Prevents API errors from empty chat messages by automatically sanitizing message content before sending.
+- **Expensive Operation Confirmation**: In token-based billing mode, prompts for confirmation before invoking expensive agents. Helps control costs when using pay-per-token billing.
 - **Grep Output Truncator**: Grep can return mountains of text. This dynamically truncates output based on your remaining context window—keeps 50% headroom, caps at 50k tokens.
 - **Tool Output Truncator**: Same idea, broader scope. Truncates output from Grep, Glob, LSP tools, and AST-grep. Prevents one verbose search from eating your entire context.
 
@@ -561,8 +561,10 @@ When agents thrive, you thrive. But I want to help you directly too.
 Highly opinionated, but adjustable to taste.
 
 Config file locations (priority order):
-1. `.opencode/oh-my-opencode.json` (project)
-2. `~/.config/opencode/oh-my-opencode.json` (user)
+1. `.opencode/oh-my-opencode.jsonc` or `.opencode/oh-my-opencode.json` (project)
+2. `~/.config/opencode/oh-my-opencode.jsonc` or `~/.config/opencode/oh-my-opencode.json` (user)
+
+**JSONC Support**: Config files can use `.jsonc` extension for JSON with comments. The plugin prefers `.jsonc` files when both exist.
 
 Schema autocomplete supported:
 
@@ -691,7 +693,34 @@ Disable specific built-in hooks via `disabled_hooks` in `~/.config/opencode/oh-m
 }
 ```
 
-Available hooks: `todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `auto-update-checker`, `startup-toast`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`
+Available hooks: `todo-continuation-enforcer`, `context-window-monitor`, `session-recovery`, `session-notification`, `comment-checker`, `grep-output-truncator`, `tool-output-truncator`, `directory-agents-injector`, `directory-readme-injector`, `empty-task-response-detector`, `think-mode`, `anthropic-auto-compact`, `rules-injector`, `background-notification`, `keyword-detector`, `agent-usage-reminder`, `non-interactive-env`, `interactive-bash-session`, `empty-message-sanitizer`, `expensive-operation-confirmation`
+
+### Cost Management
+
+Configure cost-aware agent management for GitHub Copilot premium request billing:
+
+```json
+{
+  "billing": {
+    "mode": "session",
+    "confirm_expensive_threshold": 2
+  }
+}
+```
+
+| Option | Default | Description |
+| ------ | ------- | ----------- |
+| `mode` | `"session"` | Billing mode: `"session"` (flat rate per chat) or `"premium_request"` (per-request billing). |
+| `model_costs` | (built-in) | Override model cost multipliers. Each model maps to `{ unit, cost_multiplier }`. |
+| `confirm_expensive_threshold` | `2` | In `"premium_request"` mode, prompt for confirmation before invoking agents costing >= this multiplier. |
+
+**Cost Tiers** (premium request multipliers):
+- **FREE** (0x): `grok-code-fast-1`, `gpt-5-mini`, `o4-mini`
+- **LOW** (0.33x): `claude-haiku-4.5`, `gpt-5.1-codex-mini`
+- **STANDARD** (1x): Most models (sonnet, gpt-5.x, gemini, etc.)
+- **HIGH** (3x): `claude-opus-4.5`
+
+In `"session"` mode (default), all agent invocations within a session have no additional cost—no confirmation needed. In `"premium_request"` mode, the `expensive-operation-confirmation` hook prompts before expensive agent calls to help you manage your premium request quota.
 
 ### MCPs
 

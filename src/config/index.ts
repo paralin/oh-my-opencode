@@ -6,6 +6,10 @@ export {
   AgentNameSchema,
   HookNameSchema,
   OmoAgentConfigSchema,
+  BillingUnitSchema,
+  ModelCostSchema,
+  ModelCostsSchema,
+  BillingConfigSchema,
 } from "./schema"
 
 export type {
@@ -16,4 +20,8 @@ export type {
   AgentName,
   HookName,
   OmoAgentConfig,
+  BillingUnit,
+  ModelCost,
+  ModelCosts,
+  BillingConfig,
 } from "./schema"

@@ -4,7 +4,7 @@ export const exploreAgent: AgentConfig = {
   description:
     'Contextual grep for codebases. Answers "Where is X?", "Which file has Y?", "Find the code that does Z". Fire multiple in parallel for broad searches. Specify thoroughness: "quick" for basic, "medium" for moderate, "very thorough" for comprehensive analysis.',
   mode: "subagent",
-  model: "opencode/grok-code",
+  model: "github-copilot/grok-code-fast-1",
   temperature: 0.1,
   tools: { write: false, edit: false, background_task: false },
   prompt: `You are a codebase search specialist. Your job: find files and code, return actionable results.

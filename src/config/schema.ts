@@ -56,13 +56,12 @@ export const HookNameSchema = z.enum([
   "anthropic-auto-compact",
   "rules-injector",
   "background-notification",
-  "auto-update-checker",
-  "startup-toast",
   "keyword-detector",
   "agent-usage-reminder",
   "non-interactive-env",
   "interactive-bash-session",
   "empty-message-sanitizer",
+  "expensive-operation-confirmation",
 ])
 
 export const AgentOverrideConfigSchema = z.object({
@@ -106,6 +105,21 @@ export const OmoAgentConfigSchema = z.object({
   disabled: z.boolean().optional(),
 })
 
+export const BillingUnitSchema = z.enum(["session", "premium_request"])
+
+export const ModelCostSchema = z.object({
+  unit: BillingUnitSchema,
+  cost_multiplier: z.number().min(0),
+})
+
+export const ModelCostsSchema = z.record(z.string(), ModelCostSchema)
+
+export const BillingConfigSchema = z.object({
+  mode: BillingUnitSchema.optional(),
+  model_costs: ModelCostsSchema.optional(),
+  confirm_expensive_threshold: z.number().min(0).optional(),
+})
+
 export const OhMyOpenCodeConfigSchema = z.object({
   $schema: z.string().optional(),
   disabled_mcps: z.array(McpNameSchema).optional(),
@@ -115,6 +129,7 @@ export const OhMyOpenCodeConfigSchema = z.object({
   claude_code: ClaudeCodeConfigSchema.optional(),
   google_auth: z.boolean().optional(),
   omo_agent: OmoAgentConfigSchema.optional(),
+  billing: BillingConfigSchema.optional(),
 })
 
 export type OhMyOpenCodeConfig = z.infer<typeof OhMyOpenCodeConfigSchema>
@@ -123,5 +138,9 @@ export type AgentOverrides = z.infer<typeof AgentOverridesSchema>
 export type AgentName = z.infer<typeof AgentNameSchema>
 export type HookName = z.infer<typeof HookNameSchema>
 export type OmoAgentConfig = z.infer<typeof OmoAgentConfigSchema>
+export type BillingUnit = z.infer<typeof BillingUnitSchema>
+export type ModelCost = z.infer<typeof ModelCostSchema>
+export type ModelCosts = z.infer<typeof ModelCostsSchema>
+export type BillingConfig = z.infer<typeof BillingConfigSchema>
 
 export { McpNameSchema, type McpName } from "../mcp/types"

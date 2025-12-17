@@ -53,11 +53,12 @@
           "anthropic-auto-compact",
           "rules-injector",
           "background-notification",
-          "auto-update-checker",
-          "startup-toast",
           "keyword-detector",
           "agent-usage-reminder",
-          "non-interactive-env"
+          "non-interactive-env",
+          "interactive-bash-session",
+          "empty-message-sanitizer",
+          "expensive-operation-confirmation"
         ]
       }
     },
@@ -1204,6 +1205,48 @@
       "properties": {
         "disabled": {
           "type": "boolean"
+        }
+      }
+    },
+    "billing": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "session",
+            "premium_request"
+          ]
+        },
+        "model_costs": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "session",
+                  "premium_request"
+                ]
+              },
+              "cost_multiplier": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "unit",
+              "cost_multiplier"
+            ]
+          }
+        },
+        "confirm_expensive_threshold": {
+          "type": "number",
+          "minimum": 0
         }
       }
     }

@@ -78,13 +78,13 @@ oh-my-opencode/
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| OmO | anthropic/claude-opus-4-5 | Primary orchestrator, team leader |
-| oracle | openai/gpt-5.2 | Strategic advisor, code review, architecture |
-| librarian | anthropic/claude-sonnet-4-5 | Multi-repo analysis, docs lookup, GitHub examples |
-| explore | opencode/grok-code | Fast codebase exploration, file patterns |
-| frontend-ui-ux-engineer | google/gemini-3-pro-preview | UI generation, design-focused |
-| document-writer | google/gemini-3-pro-preview | Technical documentation |
-| multimodal-looker | google/gemini-2.5-flash | PDF/image/diagram analysis |
+| OmO | github-copilot/claude-opus-4-5 | Primary orchestrator, team leader |
+| oracle | github-copilot/gpt-5.2 | Strategic advisor, code review, architecture |
+| librarian | github-copilot/claude-sonnet-4-5 | Multi-repo analysis, docs lookup, GitHub examples |
+| explore | github-copilot/grok-code-fast-1 | Fast codebase exploration, file patterns |
+| frontend-ui-ux-engineer | github-copilot/gemini-3-pro-preview | UI generation, design-focused |
+| document-writer | github-copilot/gemini-3-pro-preview | Technical documentation |
+| multimodal-looker | github-copilot/gemini-2.5-pro | PDF/image/diagram analysis |
 
 ## COMMANDS
 
